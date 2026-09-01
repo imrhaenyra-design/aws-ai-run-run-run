@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AIF-C01 Study Tracker</title>
+<style>
+:root{--bg:#f7f7f8;--card:#fff;--text:#111827;--muted:#6b7280;--border:#d1d5db;--accent:#2563eb;--soft:#eff6ff;--good:#166534;--warn:#92400e}
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text)}
+main{max-width:980px;margin:0 auto;padding:20px}
+h1{font-size:28px;margin:0 0 6px} h2{font-size:20px;margin:0 0 12px}
+p{line-height:1.5}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px}
+.metric .label{font-size:13px;color:var(--muted)} .metric .value{font-size:26px;font-weight:700;margin-top:4px}
+.tabs{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 12px}
+button{font:inherit;border:1px solid var(--border);background:#fff;color:var(--text);border-radius:10px;padding:10px 14px;min-height:44px}
+button.primary,button.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.panel{display:none}.panel.active{display:block}
+.qcard{margin:12px 0}.meta{font-size:12px;color:var(--muted)} .opts{font-size:14px;line-height:1.6;margin-top:8px}
+.detail{display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);font-size:14px;line-height:1.55}.detail.show{display:block}
+.badge{display:inline-block;border:1px solid var(--border);border-radius:999px;padding:4px 8px;font-size:12px}
+.note{background:#fff7ed;border:1px solid #fed7aa;color:var(--warn);border-radius:10px;padding:10px;margin-top:8px}
+.answerbox{display:none;margin-top:12px;border-top:1px solid var(--border);padding-top:12px}.answerbox.show{display:block}
+.choice{display:block;border:1px solid var(--border);border-radius:10px;padding:10px;margin:8px 0;background:#fff}
+.small{font-size:13px;color:var(--muted)}
+.domainrow{margin:10px 0;padding:10px 0;border-bottom:1px solid #eee}
+.result{margin-top:14px}
+footer{margin:24px 0;color:var(--muted);font-size:12px;text-align:center}
+@media(max-width:700px){.grid{grid-template-columns:repeat(2,1fr)}main{padding:14px}}
+</style>
+</head>
+<body>
+<main>
+  <h1>AIF-C01 Study Tracker</h1>
+  <p class="small">Interactive editable edition • Permanent Question Vault • Q1–Q20</p>
+  <div class="note"><strong>Editable notes:</strong> Each question now has a My Notes button. Notes are saved in the browser with local storage when supported. Open this HTML in Safari or another browser/HTML viewer that runs JavaScript.</div>
+
+  <section class="grid">
+    <div class="card metric"><div class="label">Question Vault</div><div class="value">20</div></div>
+    <div class="card metric"><div class="label">Domains Covered</div><div class="value">5 / 5</div></div>
+    <div class="card metric"><div class="label">Highest-weight Domain</div><div class="value">D3 · 28%</div></div>
+    <div class="card metric"><div class="label">Exam Readiness</div><div class="value" style="font-size:18px">Not scored yet</div></div>
+  </section>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="vault">Question Vault</button>
+    <button class="tab" data-tab="domains">Exam Domains</button>
+    <button class="tab" data-tab="review">Spaced Review</button>
+    <button class="tab" data-tab="mock">Mock Exam</button>
+    <button class="tab" data-tab="rules">Exam Rules</button>
+  </div>
+
+  <section id="vault" class="panel active">
+    <div class="card">
+      <h2>Permanent Question Vault</h2>
+      <p class="small">Every question stays here. Future versions append Q10, Q11, Q12…</p>
+      <div id="vaultList"></div>
+    </div>
+  </section>
+
+  <section id="domains" class="panel">
+    <div class="card">
+      <h2>Weighted Domain Dashboard</h2>
+      <div class="domainrow"><strong>D1 · Fundamentals of AI & ML — 20%</strong><div class="small">Q3, Q5, Q7, Q10, Q11, Q14, Q15, Q16, Q17, Q20</div></div>
+      <div class="domainrow"><strong>D2 · Fundamentals of GenAI — 24%</strong><div class="small">Q2, Q9, Q12</div></div>
+      <div class="domainrow"><strong>D3 · Applications of Foundation Models — 28%</strong><div class="small">Q4, Q6, Q18, Q19 · Highest-weight domain</div></div>
+      <div class="domainrow"><strong>D4 · Responsible AI — 14%</strong><div class="small">Q1, Q3 secondary, Q7 quality relevance</div></div>
+      <div class="domainrow"><strong>D5 · Security, Compliance & Governance — 14%</strong><div class="small">Q8, Q13</div></div>
+      <p class="small"><strong>Coverage ≠ strength.</strong> Strength should come from your scored review and mock performance.</p>
+    </div>
+  </section>
+
+  <section id="review" class="panel">
+    <div class="card">
+      <h2>Spaced Review</h2>
+      <p class="small">Draws from all stored questions. Older questions receive extra weight.</p>
+      <button id="pickReview" class="primary">Give me a review question</button>
+      <div id="reviewArea" class="result"></div>
+    </div>
+  </section>
+
+  <section id="mock" class="panel">
+    <div class="card">
+      <h2>Mock Exam</h2>
+      <p class="small">All 20 stored questions are shuffled. Answers stay hidden until the end.</p>
+      <button id="startMock" class="primary">Start 20-question mock</button>
+      <div id="mockArea" class="result"></div>
+    </div>
+  </section>
+
+  <section id="rules" class="panel">
+    <div class="card">
+      <h2>Exam Rules</h2>
+      <ul>
+        <li>50 scored questions + 15 unidentified unscored questions.</li>
+        <li>Unanswered questions are incorrect; there is no penalty for guessing.</li>
+        <li>Question types can include multiple choice, multiple response, ordering, and matching.</li>
+        <li>Compensatory scoring: pass overall, not each domain individually.</li>
+        <li>Minimum scaled passing score: <strong>700 / 1000</strong>.</li>
+      </ul>
+    </div>
+  </section>
+
+  <footer>This file works offline. Save a fresh copy whenever new questions are added.</footer>
+</main>
+
+<script>
+const qs=[
+{n:1,t:'Model explainability',d:'D4',task:'4.2',q:'A company uses ML forecasts and needs transparency and explainability. What should be included in the report?',o:['Code for model training','Partial dependence plots (PDPs)','Sample data for training','Model convergence tables'],a:'Partial dependence plots (PDPs)',why:'PDPs show how predictions change as a selected feature varies.',wrong:'Training code = implementation; sample data = dataset understanding; convergence = optimization.',m:'PDP = what happens to the Prediction when this feature changes?',rel:'PDP, SageMaker Clarify, interpretability vs explainability, Responsible AI.'},
+{n:2,t:'Legal-document summarization',d:'D2',task:'2.1',q:'A law firm wants an LLM to read legal documents and extract key points. Which solution fits?',o:['Named entity recognition','Recommendation engine','Summarization chatbot','Multi-language translation'],a:'Summarization chatbot',why:'Extracting key points from a longer document is summarization.',wrong:'NER identifies entities; recommendation suggests items; translation changes language.',m:'Same document, less text, key meaning.',rel:'Summarization, information extraction, NER, Q&A, Translate.'},
+{n:3,t:'Gene classification + interpretability',d:'D1',task:'1.2',q:'A company wants to classify human genes into 20 categories and document how the model inner mechanism affects output. Which algorithm fits?',o:['Decision trees','Linear regression','Logistic regression','Neural networks'],a:'Decision trees',why:'This is multiclass classification plus a strong interpretability requirement.',wrong:'Linear regression predicts continuous values; neural networks are less transparent; logistic regression can classify but is less directly visual than a tree.',m:'Decision Tree = you can SEE the decision.',rel:'Classification, decision trees, interpretability, neural networks.'},
+{n:4,t:'LLM response length + language',d:'D3',task:'3.2',q:'A product-recommendation chatbot needs short outputs in a specific language. Which solution aligns the output with expectations?',o:['Adjust the prompt','Choose an LLM of a different size','Increase the temperature','Increase the Top K value'],a:'Adjust the prompt',why:'Language, tone, format, and desired brevity can be specified directly in the prompt.',wrong:'Model size changes capability/cost; higher temperature increases creativity; higher Top K increases candidate diversity.',m:'Prompt = HOW to answer.',rel:'Prompt engineering, output indicator, temperature, Top K, length, model selection.'},
+{n:5,t:'SageMaker asynchronous inference',d:'D1',task:'AWS ML use case',q:'A production SageMaker pipeline has input payloads up to 1 GB, processing times up to 1 hour, and needs near real-time latency. Which inference option fits?',o:['Real-time inference','Serverless inference','Asynchronous inference','Batch transform'],a:'Asynchronous inference',why:'Async inference is designed for payloads up to 1 GB, processing up to 1 hour, and near-real-time workloads.',wrong:'Real-time and serverless have much smaller payload/time limits; batch transform targets bulk offline processing.',m:'1 GB + 1 hour = ASYNC.',rel:'Real-time, serverless, asynchronous inference, batch transform.'},
+{n:6,t:'Transfer learning',d:'D3',task:'3.3',q:'A company wants to adapt pretrained domain-specific models for new related tasks instead of building new models from scratch. Which strategy fits?',o:['Increase the number of epochs','Use transfer learning','Decrease the number of epochs','Use unsupervised learning'],a:'Use transfer learning',why:'Transfer learning reuses knowledge from a pretrained model for a new related task.',wrong:'Changing epochs only changes training duration; unsupervised learning describes unlabeled-data learning, not pretrained-model reuse.',m:'TRANSFER existing knowledge → new related task.',rel:'Transfer learning, fine-tuning, pretrained models.'},
+{n:7,t:'Ground Truth Plus validation',d:'D1',task:'ML lifecycle',q:'A company is generating images for protective eyewear and needs high annotation accuracy with minimal incorrect labels. Which solution fits?',o:['Human-in-the-loop validation using SageMaker Ground Truth Plus','Data augmentation using an Amazon Bedrock knowledge base','Image recognition using Amazon Rekognition','Data summarization using Amazon QuickSight Q'],a:'Human-in-the-loop validation using SageMaker Ground Truth Plus',why:'Ground Truth Plus supports human data labeling and validation.',wrong:'Knowledge bases support retrieval; Rekognition analyzes images but is not the human annotation-validation service; QuickSight Q is unrelated.',m:'Ground Truth = humans make/check the labels.',rel:'Ground Truth, Ground Truth Plus, human feedback, annotation.'},
+{n:8,t:'Bedrock + encrypted S3 access',d:'D5',task:'5.1',q:'A Bedrock FM must access encrypted data in S3 but fails. Which solution is intended by the question?',o:['Ensure the role Bedrock assumes has permission to decrypt data with the correct encryption key','Make the S3 bucket public','Use prompt engineering to tell the model to look in S3','Ensure the S3 data contains no sensitive information'],a:'Ensure the role Bedrock assumes has permission to decrypt data with the correct encryption key',why:'The intended concept is IAM/resource access and, when KMS is used, decrypt permission.',wrong:'Public access is insecure and unnecessary; prompts cannot grant AWS permissions; removing sensitive data does not fix authorization.',m:'Cannot ACCESS AWS data? Think IAM first.',rel:'IAM roles, S3 access, encryption, KMS decrypt permissions.',note:'Potential wording issue: the question says SSE-S3, while decrypt-key permission more directly matches SSE-KMS.'},
+{n:9,t:'SLM inference at the edge',d:'D2',task:'GenAI inference',q:'A company needs the lowest possible latency for language-model inference on edge devices. Which solution fits?',o:['Deploy optimized SLMs on edge devices','Deploy optimized LLMs on edge devices','Use a centralized SLM API asynchronously','Use a centralized LLM API asynchronously'],a:'Deploy optimized SLMs on edge devices',why:'A local SLM has a small compute footprint and avoids network latency.',wrong:'LLMs are heavier; centralized APIs add communication latency whether SLM or LLM.',m:'EDGE + LOWEST LATENCY = SMALL + LOCAL.',rel:'Small language models, edge inference, latency, local inference.'},
+{n:10,t:'Classification evaluation metric',d:'D1',task:'1.3',q:'A company has built an image classification model to predict plant diseases from photos of plant leaves. The company wants to evaluate how many images the model classified correctly. Which evaluation metric should it use?',o:['R-squared score','Accuracy','Root mean squared error (RMSE)','Learning rate'],a:'Accuracy',why:'Accuracy measures the proportion of predictions that are correct, which directly matches the requirement to measure how many images were classified correctly.',wrong:'R-squared and RMSE are regression metrics for continuous-value predictions; learning rate is a training hyperparameter, not an evaluation metric.',m:'Classification + “how many correct?” = ACCURACY.',rel:'Confusion matrix, accuracy, precision, recall, F1 score, regression metrics.'},
+{n:11,t:'SageMaker Feature Store',d:'D1',task:'1.3',q:'A company wants to build an ML model by using Amazon SageMaker. The company needs to share and manage variables for model development across multiple teams. Which SageMaker feature meets these requirements?',o:['Amazon SageMaker Feature Store','Amazon SageMaker Data Wrangler','Amazon SageMaker Clarify','Amazon SageMaker Model Cards'],a:'Amazon SageMaker Feature Store',why:'Feature Store centrally stores, manages, and makes reusable ML features discoverable across teams and projects.',wrong:'Data Wrangler prepares and transforms data; Clarify detects bias and explains models; Model Cards document model details.',m:'Shared reusable VARIABLES/FEATURES → Feature Store.',rel:'Feature Store, Data Wrangler, Clarify, Model Cards, ML pipeline.'},
+{n:12,t:'Amazon Q Developer',d:'D2',task:'2.3',q:'A company wants to use generative AI to increase developer productivity and software development. The company wants to use Amazon Q Developer. What can Amazon Q Developer do to help the company meet these requirements?',o:['Create software snippets, reference tracking, and open source license tracking','Run an application without provisioning or managing servers','Enable voice commands for coding and provide natural-language search','Convert audio files to text documents by using ML models'],a:'Create software snippets, reference tracking, and open source license tracking',why:'Amazon Q Developer is an AI coding assistant that provides code suggestions and developer-focused assistance, including reference-aware code support.',wrong:'Serverless application execution is AWS Lambda; voice-command functionality is not the core Q Developer capability here; audio-to-text is Amazon Transcribe.',m:'Q Developer = AI coding companion.',rel:'Amazon Q Developer, code suggestions, security scans, software agents, developer productivity.'},
+{n:13,t:'Private access to AWS services',d:'D5',task:'5.1',q:'A financial institution is using Amazon Bedrock to develop an AI application. The application is hosted in a VPC. To meet regulatory compliance standards, the VPC is not allowed access to any internet traffic. Which AWS service or feature will meet these requirements?',o:['AWS PrivateLink','Amazon Macie','Amazon CloudFront','Internet gateway'],a:'AWS PrivateLink',why:'AWS PrivateLink/VPC endpoints allow private access to AWS services such as Bedrock without sending traffic over the public internet.',wrong:'Macie discovers sensitive data in S3; CloudFront is a content delivery network; an internet gateway explicitly enables internet connectivity.',m:'NO INTERNET + AWS SERVICE ACCESS → PrivateLink/VPC endpoint.',rel:'VPC endpoints, PrivateLink, private subnets, Bedrock security.'},
+{n:14,t:'When AI is unnecessary',d:'D1',task:'1.2',q:'A company wants to develop an educational game where users answer questions such as: A jar contains six red, four green, and three yellow marbles. What is the probability of choosing a green marble from the jar? Which solution meets these requirements with the LEAST operational overhead?',o:['Use supervised learning to create a regression model that predicts probability','Use reinforcement learning to train a model to return the probability','Use code that calculates probability by using simple rules and computations','Use unsupervised learning to create a model that estimates probability density'],a:'Use code that calculates probability by using simple rules and computations',why:'This is a deterministic arithmetic problem with a known formula, so simple code is cheaper, simpler, and more reliable than ML.',wrong:'Regression, reinforcement learning, and unsupervised learning add unnecessary training, data, and operational complexity for a fixed calculation.',m:'Known formula + exact answer → CODE, not AI.',rel:'When AI/ML is not appropriate, deterministic logic, cost-benefit analysis.'},
+{n:15,t:'Runtime efficiency metric',d:'D1',task:'1.3',q:'Which metric measures the runtime efficiency of operating AI models?',o:['Customer satisfaction score (CSAT)','Training time for each epoch','Average response time','Number of training instances'],a:'Average response time',why:'Average response time measures how long the deployed model takes to respond during inference, directly reflecting runtime latency/efficiency.',wrong:'CSAT is a business/user metric; training time per epoch concerns training efficiency; number of training instances is a dataset-size measure.',m:'Runtime efficiency → RESPONSE TIME / LATENCY.',rel:'Latency, inference performance, monitoring, operational metrics.'},
+{n:16,t:'Contact-center audio transcription',d:'D1',task:'1.2',q:'A company is building a contact center application and wants to gain insights from customer conversations. The company wants to analyze and extract key information from the audio of customer calls. Which solution meets these requirements?',o:['Build a conversational chatbot by using Amazon Lex','Transcribe call recordings by using Amazon Transcribe','Extract information from call recordings by using Amazon SageMaker Model Monitor','Create classification labels by using Amazon Comprehend'],a:'Transcribe call recordings by using Amazon Transcribe',why:'Amazon Transcribe converts speech/audio recordings into text, which can then be analyzed for insights and key information.',wrong:'Lex builds conversational interfaces; Model Monitor monitors ML models; Comprehend analyzes text rather than directly transcribing audio.',m:'Audio → TEXT = Transcribe.',rel:'Amazon Transcribe, speech recognition, contact-center analytics, NLP pipeline.'},
+{n:17,t:'Unlabeled customer segmentation',d:'D1',task:'1.1/1.2',q:'A company has petabytes of unlabeled customer data to use for an advertisement campaign. The company wants to classify its customers into tiers to advertise and promote the company’s products. Which methodology should the company use?',o:['Supervised learning','Unsupervised learning','Reinforcement learning','Reinforcement learning from human feedback (RLHF)'],a:'Unsupervised learning',why:'The data is unlabeled, so unsupervised methods such as clustering are appropriate for discovering natural customer groups or tiers.',wrong:'Supervised learning requires labels; reinforcement learning learns through rewards; RLHF is used to align models with human preferences.',m:'UNLABELED + GROUPS → UNSUPERVISED / CLUSTERING.',rel:'Supervised vs unsupervised learning, clustering, customer segmentation.'},
+{n:18,t:'Multimodal embeddings for search',d:'D3',task:'3.1',q:'An AI practitioner wants to use a foundation model (FM) to design a search application. The search application must handle queries that have text and images. Which type of FM should the AI practitioner use to power the search application?',o:['Multi-modal embedding model','Text embedding model','Multi-modal generation model','Image generation model'],a:'Multi-modal embedding model',why:'A multimodal embedding model can represent both text and image content in a shared semantic space, which is ideal for cross-modal search and retrieval.',wrong:'Text embeddings cannot directly represent image inputs; generation models create content rather than primarily encoding items for semantic search.',m:'SEARCH + TEXT & IMAGES → MULTIMODAL EMBEDDINGS.',rel:'Embeddings, multimodal models, semantic search, vector retrieval.'},
+{n:19,t:'Bedrock fine-tuning data',d:'D3',task:'3.3',q:'A company uses a foundation model (FM) from Amazon Bedrock for an AI search bot. The company wants to fine-tune the model to be more accurate by using the company’s data. Which strategy will successfully fine-tune the model?',o:['Provide labeled data with the prompt field and the completion field','Prepare the training dataset by creating a .txt file that contains multiple lines in .csv format','Purchase Provisioned Throughput for Amazon Bedrock','Train the model on journals and textbooks'],a:'Provide labeled data with the prompt field and the completion field',why:'Supervised fine-tuning requires example input/output pairs so the model can learn the desired responses from labeled examples.',wrong:'A mismatched text/CSV file format does not define valid supervised examples; Provisioned Throughput reserves inference capacity rather than fine-tuning a model; generic journals/textbooks are not the company-specific labeled examples described.',m:'Fine-tuning → labeled INPUT → desired OUTPUT examples.',rel:'Supervised fine-tuning, prompt/completion examples, domain adaptation, customization.'},
+{n:20,t:'Threat detection from suspicious IPs',d:'D1',task:'1.2',q:'A company wants to use AI to protect its application from threats. The AI solution needs to check if an IP address is from a suspicious source. Which solution meets these requirements?',o:['Build a speech recognition system','Create a natural language processing (NLP) named entity recognition system','Develop an anomaly detection system','Create a fraud forecasting system'],a:'Develop an anomaly detection system',why:'Anomaly detection is designed to identify unusual or suspicious patterns, such as network activity or IP behavior that deviates from normal baselines.',wrong:'Speech recognition processes audio; NER extracts entities from text; forecasting predicts future values rather than flagging anomalous behavior.',m:'Suspicious / unusual behavior → ANOMALY DETECTION.',rel:'Anomaly detection, threat detection, outliers, security analytics.'}
+];
+
+function shuffle(a){const x=[...a];for(let i=x.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[x[i],x[j]]=[x[j],x[i]]}return x}
+
+document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active'); document.getElementById(b.dataset.tab).classList.add('active');
+}));
+
+const vault=document.getElementById('vaultList');
+qs.forEach(x=>{
+  const a=document.createElement('article'); a.className='card qcard';
+  a.innerHTML=`<div><strong>Q${x.n} · ${x.t}</strong> <span class="badge">${x.d} · ${x.task}</span></div>
+  <p>${x.q}</p><div class="opts">${x.o.map((o,i)=>String.fromCharCode(65+i)+'. '+o).join('<br>')}</div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
+  <button class="showDetail">Review Q${x.n}</button>
+  <button class="showNotes">My Notes</button>
+  </div>
+  <div class="detail"><div><strong>Correct:</strong> ${x.a}</div><div><strong>Why:</strong> ${x.why}</div>
+  <div><strong>Why others are wrong:</strong> ${x.wrong}</div><div><strong>Memory:</strong> ${x.m}</div>
+  <div><strong>Related concepts:</strong> ${x.rel}</div>${x.note?`<div class="note"><strong>Note:</strong> ${x.note}</div>`:''}</div>
+  <div class="notesBox" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">
+    <label for="note-${x.n}"><strong>My Notes for Q${x.n}</strong></label>
+    <textarea id="note-${x.n}" rows="4" style="width:100%;margin-top:8px;padding:12px;border:1px solid var(--border);border-radius:10px;font:inherit;font-size:16px" placeholder="Write your own memory hook, mistake, clarification, or exam note..."></textarea>
+    <div class="small noteStatus" style="margin-top:4px">Saved locally in this browser when supported.</div>
+  </div>`;
+  a.querySelector('.showDetail').addEventListener('click',()=>a.querySelector('.detail').classList.toggle('show'));
+  a.querySelector('.showNotes').addEventListener('click',()=>{const n=a.querySelector('.notesBox');n.style.display=n.style.display==='none'?'block':'none';});
+  const ta=a.querySelector('textarea');
+  const key='aif-c01-note-'+x.n;
+  try{ta.value=localStorage.getItem(key)||'';}catch(e){}
+  ta.addEventListener('input',()=>{try{localStorage.setItem(key,ta.value);a.querySelector('.noteStatus').textContent='Saved locally.';}catch(e){a.querySelector('.noteStatus').textContent='Local saving is blocked in this browser.';}});
+  vault.appendChild(a);
+});
+
+let currentReview=null;
+document.getElementById('pickReview').addEventListener('click',()=>{
+  const weighted=[]; qs.forEach((q,i)=>{const w=Math.max(1,qs.length-i);for(let k=0;k<w;k++)weighted.push(q)});
+  currentReview=weighted[Math.floor(Math.random()*weighted.length)];
+  const opts=shuffle(currentReview.o);
+  const area=document.getElementById('reviewArea');
+  area.innerHTML=`<div class="card"><strong>Q${currentReview.n} · ${currentReview.t}</strong><p>${currentReview.q}</p>
+  ${opts.map((o,i)=>`<label class="choice"><input type="radio" name="reviewChoice" value="${o.replaceAll('"','&quot;')}"> ${String.fromCharCode(65+i)}. ${o}</label>`).join('')}
+  <button id="showReviewAnswer">Reveal answer</button><div id="reviewAns" class="answerbox"></div></div>`;
+  document.getElementById('showReviewAnswer').addEventListener('click',()=>{
+    const c=document.querySelector('input[name="reviewChoice"]:checked');
+    const ans=document.getElementById('reviewAns'); ans.classList.add('show');
+    ans.innerHTML=`<strong>Your answer:</strong> ${c?c.value:'No answer'}<br><strong>Correct:</strong> ${currentReview.a}<br><strong>Memory:</strong> ${currentReview.m}`;
+  });
+});
+
+let exam=[],idx=0,answers=[],started=0,timerId=null;
+function fmt(sec){return String(Math.floor(sec/60)).padStart(2,'0')+':'+String(sec%60).padStart(2,'0')}
+function startMock(){
+  exam=shuffle(qs).map(q=>({...q,shown:shuffle(q.o)})); idx=0; answers=[]; started=Date.now();
+  clearInterval(timerId); timerId=setInterval(renderMock,1000); renderMock();
+}
+function renderMock(){
+  const area=document.getElementById('mockArea'); const q=exam[idx];
+  area.innerHTML=`<div class="small">Question ${idx+1} of ${exam.length} · Time ${fmt(Math.floor((Date.now()-started)/1000))}</div>
+  <div class="card"><strong>Q${q.n} · ${q.t}</strong> <span class="badge">${q.d}</span><p>${q.q}</p>
+  ${q.shown.map((o,i)=>`<label class="choice"><input type="radio" name="mockChoice" value="${o.replaceAll('"','&quot;')}"> ${String.fromCharCode(65+i)}. ${o}</label>`).join('')}
+  <button id="mockNext" class="primary">${idx===exam.length-1?'Finish Exam':'Next'}</button></div>`;
+  document.getElementById('mockNext').addEventListener('click',()=>{
+    const c=document.querySelector('input[name="mockChoice"]:checked');
+    answers.push({q,sel:c?c.value:null,ok:c?c.value===q.a:false});
+    if(idx===exam.length-1){finishMock()}else{idx++;renderMock()}
+  });
+}
+function finishMock(){
+  clearInterval(timerId);
+  const good=answers.filter(x=>x.ok).length;
+  document.getElementById('mockArea').innerHTML=`<div class="card"><h2>Mock Result</h2><div class="metric"><div class="value">${good}/${answers.length} · ${Math.round(good/answers.length*100)}%</div></div>
+  ${answers.map(x=>`<div class="qcard"><strong>Q${x.q.n}</strong> — ${x.ok?'✓':'✗'}<br>Your answer: ${x.sel||'No answer'}<br>Correct: ${x.q.a}<br><span class="small">${x.q.m}</span></div>`).join('')}
+  <button id="again" class="primary">Take another mock</button></div>`;
+  document.getElementById('again').addEventListener('click',startMock);
+}
+document.getElementById('startMock').addEventListener('click',startMock);
+</script>
+</body>
+</html>
