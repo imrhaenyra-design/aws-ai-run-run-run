@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111827">
+<title>AIF-C01 Study Tracker — Enhanced Edition</title>
+<style>
+:root{
+ --bg:#f3f5f9;--card:#fff;--card2:#f9fafb;--text:#111827;--muted:#667085;--border:#e4e7ec;
+ --accent:#4f46e5;--accent2:#7c3aed;--soft:#eef2ff;--green:#067647;--greenSoft:#ecfdf3;
+ --amber:#b54708;--amberSoft:#fffaeb;--red:#b42318;--redSoft:#fef3f2;--shadow:0 8px 28px rgba(16,24,40,.07)
+}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:
+radial-gradient(circle at 20% 0%,#eef2ff 0,transparent 28rem),var(--bg);color:var(--text)}
+main{max-width:1100px;margin:auto;padding:18px 16px 56px}
+.hero{background:linear-gradient(135deg,#111827,#312e81);color:white;border-radius:24px;padding:22px;box-shadow:var(--shadow);margin-bottom:14px}
+.hero h1{font-size:30px;margin:0 0 8px;letter-spacing:-.4px} .hero p{margin:0;color:#e0e7ff;line-height:1.5}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.card{background:rgba(255,255,255,.96);border:1px solid var(--border);border-radius:18px;padding:16px;box-shadow:0 2px 10px rgba(16,24,40,.03)}
+.metric .label{font-size:12px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.metric .value{font-size:25px;font-weight:800;margin-top:5px;letter-spacing:-.4px}
+.tabs{display:flex;gap:8px;overflow:auto;padding:4px 0 10px;margin:14px 0 4px;position:sticky;top:0;background:rgba(243,245,249,.93);backdrop-filter:blur(10px);z-index:5}
+button,select,input{font:inherit}
+button{border:1px solid var(--border);background:white;color:var(--text);border-radius:12px;padding:10px 13px;min-height:44px;font-weight:650}
+button:hover{border-color:#c7d2fe}button.primary,.tab.active{background:linear-gradient(135deg,var(--accent),var(--accent2));color:white;border-color:transparent}
+button.ghost{background:var(--card2)} .panel{display:none}.panel.active{display:block}
+.toolbar{display:grid;grid-template-columns:1fr auto auto;gap:8px;margin:12px 0}
+.search{width:100%;min-height:44px;border:1px solid var(--border);border-radius:12px;padding:0 13px;background:#fff}
+select{min-height:44px;border:1px solid var(--border);border-radius:12px;padding:0 10px;background:#fff}
+.qcard{margin:12px 0;padding:0;overflow:hidden} .qhead{padding:15px 16px;background:linear-gradient(180deg,#fff,#fafbff);border-bottom:1px solid #eef0f4}
+.qbody{padding:16px} .qtitle{font-weight:800;font-size:17px} .meta{font-size:12px;color:var(--muted);margin-top:4px}
+.badge{display:inline-flex;border:1px solid #d6d9e0;border-radius:999px;padding:4px 8px;font-size:11px;font-weight:700;background:white;margin-left:4px}
+.opts{font-size:14px;line-height:1.7;margin:10px 0}
+.detail,.notesBox{display:none;margin-top:13px;padding-top:13px;border-top:1px solid var(--border);font-size:14px;line-height:1.55} .detail.show,.notesBox.show{display:block}
+.studybox{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.studyitem{padding:12px;border-radius:14px;background:var(--card2);border:1px solid var(--border)} .studyitem strong{display:block;margin-bottom:5px}
+.confuse{background:var(--amberSoft);border-color:#fedf89} .memory{background:var(--greenSoft);border-color:#abefc6}
+.controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.noteBanner{background:#f5f3ff;border:1px solid #ddd6fe;color:#5b21b6;border-radius:14px;padding:12px;margin:12px 0;line-height:1.45}
+.small{font-size:13px;color:var(--muted)} .domainrow{margin:10px 0;padding:11px 0;border-bottom:1px solid #eee}
+.progress{height:9px;background:#eaecf0;border-radius:999px;overflow:hidden;margin-top:8px} .progress>div{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+.choice{display:block;border:1px solid var(--border);border-radius:12px;padding:11px;margin:8px 0;background:#fff}
+.answerbox{display:none;margin-top:12px;border-top:1px solid var(--border);padding-top:12px}.answerbox.show{display:block}
+textarea{width:100%;margin-top:8px;padding:12px;border:1px solid var(--border);border-radius:12px;font:inherit;font-size:16px;resize:vertical}
+.star.on{background:#fff7ed;border-color:#fdba74} .confBtn[data-level="1"]{background:var(--redSoft);border-color:#fda29b}
+.confBtn[data-level="2"]{background:var(--amberSoft);border-color:#fedf89} .confBtn[data-level="3"]{background:var(--greenSoft);border-color:#abefc6}
+.kicker{font-size:12px;font-weight:800;color:#475467;text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px}
+@media(max-width:760px){.grid{grid-template-columns:repeat(2,1fr)}.toolbar{grid-template-columns:1fr 1fr}.toolbar .search{grid-column:1/-1}.studybox{grid-template-columns:1fr}.hero h1{font-size:26px}main{padding:12px 12px 44px}}
+
+.answerOption{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--border);border-radius:13px;padding:11px 12px;margin:8px 0;background:#fff;cursor:pointer}
+.answerOption input{margin-top:3px;transform:scale(1.15)}
+.answerOption.selected{border-color:#a5b4fc;background:#f5f7ff}
+.answerOption.correct{border-color:#6ce9a6;background:#ecfdf3}
+.answerOption.wrong{border-color:#fda29b;background:#fef3f2}
+.feedback{display:none;margin-top:12px}.feedback.show{display:block}
+.explainRow{padding:10px 12px;border-radius:12px;margin:7px 0;border:1px solid var(--border);background:#fff}
+.explainRow.good{border-color:#abefc6;background:#ecfdf3}.explainRow.bad{border-color:#fecaca;background:#fff7f7}
+.compareTable{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px}.compareTable th,.compareTable td{border:1px solid var(--border);padding:8px;text-align:left;vertical-align:top}.compareTable th{background:#f8fafc}
+.heatmap{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:12px}.heatCell{border-radius:16px;padding:15px 8px;text-align:center;border:1px solid var(--border)}.heatCell .big{font-size:24px;font-weight:850}.heatCell .tiny{font-size:11px;margin-top:3px}
+.heat-unknown{background:#f2f4f7}.heat-strong{background:#dcfae6;border-color:#75e0a7}.heat-mid{background:#fef0c7;border-color:#fec84b}.heat-weak{background:#fee4e2;border-color:#f97066}
+@media(max-width:650px){.heatmap{grid-template-columns:repeat(5,1fr);gap:5px}.heatCell{padding:12px 3px}.heatCell .big{font-size:19px}.compareTable{font-size:12px}}
+</style>
+</head>
+<body><main>
+<section class="hero">
+ <div class="kicker" style="color:#c7d2fe">AWS Certified AI Practitioner · AIF-C01</div>
+ <h1>Study Tracker</h1>
+ <p>Enhanced edition · Permanent question vault · source-linked study topics · confusing-topic drills · randomized study order</p>
+</section>
+
+<section class="grid">
+ <div class="card metric"><div class="label">Permanent Vault</div><div class="value">20</div></div>
+ <div class="card metric"><div class="label">Domains Covered</div><div class="value">5 / 5</div></div>
+ <div class="card metric"><div class="label">Study Priority</div><div class="value">D3 · 28%</div></div>
+ <div class="card metric"><div class="label">Exam Readiness</div><div class="value" id="readiness" style="font-size:18px">Starts after mocks</div></div>
+</section>
+
+<div class="noteBanner"><strong>What changed:</strong> each question now lets you <strong>select an answer and check it immediately</strong>, then shows an exam-ready explanation. Related PDF material is placed directly under the question, and confusing concepts use comparison charts when useful. Mock results feed a visual domain strength/weakness heat map. Vault order is randomized every load and can be reshuffled anytime.</div>
+
+<div class="tabs">
+ <button class="tab active" data-tab="vault">Question Vault</button>
+ <button class="tab" data-tab="domains">Exam Domains</button>
+ <button class="tab" data-tab="review">Spaced Review</button>
+ <button class="tab" data-tab="mock">Mock Exam</button>
+</div>
+
+<section id="vault" class="panel active">
+ <div class="card">
+  <h2 style="margin:0">Permanent Question Vault</h2>
+  <p class="small">Q numbers never change, but display order is randomized for retrieval practice. New questions will append as Q21, Q22, etc.</p>
+  <div class="toolbar">
+   <input id="searchBox" class="search" placeholder="Search question, topic, service, memory hook…">
+   <select id="domainFilter"><option value="">All domains</option><option>D1</option><option>D2</option><option>D3</option><option>D4</option><option>D5</option></select>
+   <button id="reshuffle" class="ghost">↻ Shuffle</button>
+  </div>
+  <div id="vaultList"></div>
+ </div>
+</section>
+
+<section id="domains" class="panel"><div class="card">
+ <h2>Weighted Domain Dashboard</h2>
+ <div class="domainrow"><strong>D1 · Fundamentals of AI & ML — 20%</strong><div class="small">Q3, Q5, Q7, Q10, Q11, Q14, Q15, Q16, Q17, Q20</div></div>
+ <div class="domainrow"><strong>D2 · Fundamentals of GenAI — 24%</strong><div class="small">Q2, Q9, Q12</div></div>
+ <div class="domainrow"><strong>D3 · Applications of Foundation Models — 28%</strong><div class="small">Q4, Q6, Q18, Q19 · highest exam weight</div></div>
+ <div class="domainrow"><strong>D4 · Guidelines for Responsible AI — 14%</strong><div class="small">Q1, with Q3 having secondary explainability relevance</div></div>
+ <div class="domainrow"><strong>D5 · Security, Compliance & Governance — 14%</strong><div class="small">Q8, Q13</div></div>
+ <h3>Visual Performance Memory Map</h3><p class="small">After a mock, this becomes a no-reading-needed heat map: green = stronger, amber = middle, red = needs work, gray = no scored data.</p><div id="domainHeat" class="heatmap"></div><p class="small"><strong>Coverage is not strength.</strong> Strength/weakness should come from scored attempts. Until then, priority is based on exam weight + missing coverage.</p>
+</div></section>
+
+<section id="review" class="panel"><div class="card">
+ <h2>Spaced Review</h2><p class="small">Draws from the full archive. Older questions get extra resurfacing probability until performance data becomes available.</p>
+ <button id="pickReview" class="primary">Give me a review question</button><div id="reviewArea"></div>
+</div></section>
+
+<section id="mock" class="panel"><div class="card">
+ <h2>Exam Session / Mock</h2><p class="small">Question order and answer-option order are randomized. Answers remain hidden until the session ends.</p>
+ <button id="startMock" class="primary">Start 20-question mock</button><div id="mockArea"></div>
+</div></section>
+
+
+
+<footer class="small" style="text-align:center;margin-top:24px">Enhanced local study tracker · Notes and progress remain on this browser/device unless you add cloud sync later.</footer>
+
+<script>
+const qs=[
+{n:1,t:'Model explainability',d:'D4',task:'4.2',q:'A company uses ML forecasts and needs transparency and explainability. What should be included in the report?',o:['Code for model training','Partial dependence plots (PDPs)','Sample data for training','Model convergence tables'],a:'Partial dependence plots (PDPs)',why:'PDPs show how predictions change as a selected feature varies.',wrong:'Training code = implementation; sample data = dataset understanding; convergence = optimization.',m:'PDP = what happens to the Prediction when this feature changes?',rel:'PDP, SageMaker Clarify, interpretability vs explainability, Responsible AI.'},
+{n:2,t:'Legal-document summarization',d:'D2',task:'2.1',q:'A law firm wants an LLM to read legal documents and extract key points. Which solution fits?',o:['Named entity recognition','Recommendation engine','Summarization chatbot','Multi-language translation'],a:'Summarization chatbot',why:'Extracting key points from a longer document is summarization.',wrong:'NER identifies entities; recommendation suggests items; translation changes language.',m:'Same document, less text, key meaning.',rel:'Summarization, information extraction, NER, Q&A, Translate.'},
+{n:3,t:'Gene classification + interpretability',d:'D1',task:'1.2',q:'A company wants to classify human genes into 20 categories and document how the model inner mechanism affects output. Which algorithm fits?',o:['Decision trees','Linear regression','Logistic regression','Neural networks'],a:'Decision trees',why:'This is multiclass classification plus a strong interpretability requirement.',wrong:'Linear regression predicts continuous values; neural networks are less transparent; logistic regression can classify but is less directly visual than a tree.',m:'Decision Tree = you can SEE the decision.',rel:'Classification, decision trees, interpretability, neural networks.'},
+{n:4,t:'LLM response length + language',d:'D3',task:'3.2',q:'A product-recommendation chatbot needs short outputs in a specific language. Which solution aligns the output with expectations?',o:['Adjust the prompt','Choose an LLM of a different size','Increase the temperature','Increase the Top K value'],a:'Adjust the prompt',why:'Language, tone, format, and desired brevity can be specified directly in the prompt.',wrong:'Model size changes capability/cost; higher temperature increases creativity; higher Top K increases candidate diversity.',m:'Prompt = HOW to answer.',rel:'Prompt engineering, output indicator, temperature, Top K, length, model selection.'},
+{n:5,t:'SageMaker asynchronous inference',d:'D1',task:'AWS ML use case',q:'A production SageMaker pipeline has input payloads up to 1 GB, processing times up to 1 hour, and needs near real-time latency. Which inference option fits?',o:['Real-time inference','Serverless inference','Asynchronous inference','Batch transform'],a:'Asynchronous inference',why:'Async inference is designed for payloads up to 1 GB, processing up to 1 hour, and near-real-time workloads.',wrong:'Real-time and serverless have much smaller payload/time limits; batch transform targets bulk offline processing.',m:'1 GB + 1 hour = ASYNC.',rel:'Real-time, serverless, asynchronous inference, batch transform.'},
+{n:6,t:'Transfer learning',d:'D3',task:'3.3',q:'A company wants to adapt pretrained domain-specific models for new related tasks instead of building new models from scratch. Which strategy fits?',o:['Increase the number of epochs','Use transfer learning','Decrease the number of epochs','Use unsupervised learning'],a:'Use transfer learning',why:'Transfer learning reuses knowledge from a pretrained model for a new related task.',wrong:'Changing epochs only changes training duration; unsupervised learning describes unlabeled-data learning, not pretrained-model reuse.',m:'TRANSFER existing knowledge → new related task.',rel:'Transfer learning, fine-tuning, pretrained models.'},
+{n:7,t:'Ground Truth Plus validation',d:'D1',task:'ML lifecycle',q:'A company is generating images for protective eyewear and needs high annotation accuracy with minimal incorrect labels. Which solution fits?',o:['Human-in-the-loop validation using SageMaker Ground Truth Plus','Data augmentation using an Amazon Bedrock knowledge base','Image recognition using Amazon Rekognition','Data summarization using Amazon QuickSight Q'],a:'Human-in-the-loop validation using SageMaker Ground Truth Plus',why:'Ground Truth Plus supports human data labeling and validation.',wrong:'Knowledge bases support retrieval; Rekognition analyzes images but is not the human annotation-validation service; QuickSight Q is unrelated.',m:'Ground Truth = humans make/check the labels.',rel:'Ground Truth, Ground Truth Plus, human feedback, annotation.'},
+{n:8,t:'Bedrock + encrypted S3 access',d:'D5',task:'5.1',q:'A Bedrock FM must access encrypted data in S3 but fails. Which solution is intended by the question?',o:['Ensure the role Bedrock assumes has permission to decrypt data with the correct encryption key','Make the S3 bucket public','Use prompt engineering to tell the model to look in S3','Ensure the S3 data contains no sensitive information'],a:'Ensure the role Bedrock assumes has permission to decrypt data with the correct encryption key',why:'The intended concept is IAM/resource access and, when KMS is used, decrypt permission.',wrong:'Public access is insecure and unnecessary; prompts cannot grant AWS permissions; removing sensitive data does not fix authorization.',m:'Cannot ACCESS AWS data? Think IAM first.',rel:'IAM roles, S3 access, encryption, KMS decrypt permissions.',note:'Potential wording issue: the question says SSE-S3, while decrypt-key permission more directly matches SSE-KMS.'},
+{n:9,t:'SLM inference at the edge',d:'D2',task:'GenAI inference',q:'A company needs the lowest possible latency for language-model inference on edge devices. Which solution fits?',o:['Deploy optimized SLMs on edge devices','Deploy optimized LLMs on edge devices','Use a centralized SLM API asynchronously','Use a centralized LLM API asynchronously'],a:'Deploy optimized SLMs on edge devices',why:'A local SLM has a small compute footprint and avoids network latency.',wrong:'LLMs are heavier; centralized APIs add communication latency whether SLM or LLM.',m:'EDGE + LOWEST LATENCY = SMALL + LOCAL.',rel:'Small language models, edge inference, latency, local inference.'},
+{n:10,t:'Classification evaluation metric',d:'D1',task:'1.3',q:'A company has built an image classification model to predict plant diseases from photos of plant leaves. The company wants to evaluate how many images the model classified correctly. Which evaluation metric should it use?',o:['R-squared score','Accuracy','Root mean squared error (RMSE)','Learning rate'],a:'Accuracy',why:'Accuracy measures the proportion of predictions that are correct, which directly matches the requirement to measure how many images were classified correctly.',wrong:'R-squared and RMSE are regression metrics for continuous-value predictions; learning rate is a training hyperparameter, not an evaluation metric.',m:'Classification + “how many correct?” = ACCURACY.',rel:'Confusion matrix, accuracy, precision, recall, F1 score, regression metrics.'},
+{n:11,t:'SageMaker Feature Store',d:'D1',task:'1.3',q:'A company wants to build an ML model by using Amazon SageMaker. The company needs to share and manage variables for model development across multiple teams. Which SageMaker feature meets these requirements?',o:['Amazon SageMaker Feature Store','Amazon SageMaker Data Wrangler','Amazon SageMaker Clarify','Amazon SageMaker Model Cards'],a:'Amazon SageMaker Feature Store',why:'Feature Store centrally stores, manages, and makes reusable ML features discoverable across teams and projects.',wrong:'Data Wrangler prepares and transforms data; Clarify detects bias and explains models; Model Cards document model details.',m:'Shared reusable VARIABLES/FEATURES → Feature Store.',rel:'Feature Store, Data Wrangler, Clarify, Model Cards, ML pipeline.'},
+{n:12,t:'Amazon Q Developer',d:'D2',task:'2.3',q:'A company wants to use generative AI to increase developer productivity and software development. The company wants to use Amazon Q Developer. What can Amazon Q Developer do to help the company meet these requirements?',o:['Create software snippets, reference tracking, and open source license tracking','Run an application without provisioning or managing servers','Enable voice commands for coding and provide natural-language search','Convert audio files to text documents by using ML models'],a:'Create software snippets, reference tracking, and open source license tracking',why:'Amazon Q Developer is an AI coding assistant that provides code suggestions and developer-focused assistance, including reference-aware code support.',wrong:'Serverless application execution is AWS Lambda; voice-command functionality is not the core Q Developer capability here; audio-to-text is Amazon Transcribe.',m:'Q Developer = AI coding companion.',rel:'Amazon Q Developer, code suggestions, security scans, software agents, developer productivity.'},
+{n:13,t:'Private access to AWS services',d:'D5',task:'5.1',q:'A financial institution is using Amazon Bedrock to develop an AI application. The application is hosted in a VPC. To meet regulatory compliance standards, the VPC is not allowed access to any internet traffic. Which AWS service or feature will meet these requirements?',o:['AWS PrivateLink','Amazon Macie','Amazon CloudFront','Internet gateway'],a:'AWS PrivateLink',why:'AWS PrivateLink/VPC endpoints allow private access to AWS services such as Bedrock without sending traffic over the public internet.',wrong:'Macie discovers sensitive data in S3; CloudFront is a content delivery network; an internet gateway explicitly enables internet connectivity.',m:'NO INTERNET + AWS SERVICE ACCESS → PrivateLink/VPC endpoint.',rel:'VPC endpoints, PrivateLink, private subnets, Bedrock security.'},
+{n:14,t:'When AI is unnecessary',d:'D1',task:'1.2',q:'A company wants to develop an educational game where users answer questions such as: A jar contains six red, four green, and three yellow marbles. What is the probability of choosing a green marble from the jar? Which solution meets these requirements with the LEAST operational overhead?',o:['Use supervised learning to create a regression model that predicts probability','Use reinforcement learning to train a model to return the probability','Use code that calculates probability by using simple rules and computations','Use unsupervised learning to create a model that estimates probability density'],a:'Use code that calculates probability by using simple rules and computations',why:'This is a deterministic arithmetic problem with a known formula, so simple code is cheaper, simpler, and more reliable than ML.',wrong:'Regression, reinforcement learning, and unsupervised learning add unnecessary training, data, and operational complexity for a fixed calculation.',m:'Known formula + exact answer → CODE, not AI.',rel:'When AI/ML is not appropriate, deterministic logic, cost-benefit analysis.'},
+{n:15,t:'Runtime efficiency metric',d:'D1',task:'1.3',q:'Which metric measures the runtime efficiency of operating AI models?',o:['Customer satisfaction score (CSAT)','Training time for each epoch','Average response time','Number of training instances'],a:'Average response time',why:'Average response time measures how long the deployed model takes to respond during inference, directly reflecting runtime latency/efficiency.',wrong:'CSAT is a business/user metric; training time per epoch concerns training efficiency; number of training instances is a dataset-size measure.',m:'Runtime efficiency → RESPONSE TIME / LATENCY.',rel:'Latency, inference performance, monitoring, operational metrics.'},
+{n:16,t:'Contact-center audio transcription',d:'D1',task:'1.2',q:'A company is building a contact center application and wants to gain insights from customer conversations. The company wants to analyze and extract key information from the audio of customer calls. Which solution meets these requirements?',o:['Build a conversational chatbot by using Amazon Lex','Transcribe call recordings by using Amazon Transcribe','Extract information from call recordings by using Amazon SageMaker Model Monitor','Create classification labels by using Amazon Comprehend'],a:'Transcribe call recordings by using Amazon Transcribe',why:'Amazon Transcribe converts speech/audio recordings into text, which can then be analyzed for insights and key information.',wrong:'Lex builds conversational interfaces; Model Monitor monitors ML models; Comprehend analyzes text rather than directly transcribing audio.',m:'Audio → TEXT = Transcribe.',rel:'Amazon Transcribe, speech recognition, contact-center analytics, NLP pipeline.'},
+{n:17,t:'Unlabeled customer segmentation',d:'D1',task:'1.1/1.2',q:'A company has petabytes of unlabeled customer data to use for an advertisement campaign. The company wants to classify its customers into tiers to advertise and promote the company’s products. Which methodology should the company use?',o:['Supervised learning','Unsupervised learning','Reinforcement learning','Reinforcement learning from human feedback (RLHF)'],a:'Unsupervised learning',why:'The data is unlabeled, so unsupervised methods such as clustering are appropriate for discovering natural customer groups or tiers.',wrong:'Supervised learning requires labels; reinforcement learning learns through rewards; RLHF is used to align models with human preferences.',m:'UNLABELED + GROUPS → UNSUPERVISED / CLUSTERING.',rel:'Supervised vs unsupervised learning, clustering, customer segmentation.'},
+{n:18,t:'Multimodal embeddings for search',d:'D3',task:'3.1',q:'An AI practitioner wants to use a foundation model (FM) to design a search application. The search application must handle queries that have text and images. Which type of FM should the AI practitioner use to power the search application?',o:['Multi-modal embedding model','Text embedding model','Multi-modal generation model','Image generation model'],a:'Multi-modal embedding model',why:'A multimodal embedding model can represent both text and image content in a shared semantic space, which is ideal for cross-modal search and retrieval.',wrong:'Text embeddings cannot directly represent image inputs; generation models create content rather than primarily encoding items for semantic search.',m:'SEARCH + TEXT & IMAGES → MULTIMODAL EMBEDDINGS.',rel:'Embeddings, multimodal models, semantic search, vector retrieval.'},
+{n:19,t:'Bedrock fine-tuning data',d:'D3',task:'3.3',q:'A company uses a foundation model (FM) from Amazon Bedrock for an AI search bot. The company wants to fine-tune the model to be more accurate by using the company’s data. Which strategy will successfully fine-tune the model?',o:['Provide labeled data with the prompt field and the completion field','Prepare the training dataset by creating a .txt file that contains multiple lines in .csv format','Purchase Provisioned Throughput for Amazon Bedrock','Train the model on journals and textbooks'],a:'Provide labeled data with the prompt field and the completion field',why:'Supervised fine-tuning requires example input/output pairs so the model can learn the desired responses from labeled examples.',wrong:'A mismatched text/CSV file format does not define valid supervised examples; Provisioned Throughput reserves inference capacity rather than fine-tuning a model; generic journals/textbooks are not the company-specific labeled examples described.',m:'Fine-tuning → labeled INPUT → desired OUTPUT examples.',rel:'Supervised fine-tuning, prompt/completion examples, domain adaptation, customization.'},
+{n:20,t:'Threat detection from suspicious IPs',d:'D1',task:'1.2',q:'A company wants to use AI to protect its application from threats. The AI solution needs to check if an IP address is from a suspicious source. Which solution meets these requirements?',o:['Build a speech recognition system','Create a natural language processing (NLP) named entity recognition system','Develop an anomaly detection system','Create a fraud forecasting system'],a:'Develop an anomaly detection system',why:'Anomaly detection is designed to identify unusual or suspicious patterns, such as network activity or IP behavior that deviates from normal baselines.',wrong:'Speech recognition processes audio; NER extracts entities from text; forecasting predicts future values rather than flagging anomalous behavior.',m:'Suspicious / unusual behavior → ANOMALY DETECTION.',rel:'Anomaly detection, threat detection, outliers, security analytics.'}
+];
+
+const studyExtras = {
+1:{official:"D4 Task 4.2 — transparent and explainable models; interpretability/performance tradeoffs; tools such as SageMaker Model Cards and Bedrock Model Evaluations.",maarek:"Responsible AI; explainability and transparency; SageMaker Clarify explains model outputs and detects bias; SageMaker Model Cards document ML models.",confuse:"PDP vs SageMaker Clarify vs Model Cards. A PDP is an explanation artifact; Clarify is an AWS explainability/bias service; Model Cards are documentation. Training code and convergence tables are not the best answer to an explainability-report question."},
+2:{official:"D2 Task 2.1 — GenAI use cases include summarization, assistants, translation, search, and recommendations.",maarek:"Prompt engineering examples include concise summarization; Bedrock model evaluation also lists text summarization as a built-in task type.",confuse:"Summarization vs NER vs Q&A vs translation. 'Extract key points from a long document' usually means summarization; NER extracts entities such as names or organizations."},
+3:{official:"D1 Tasks 1.1/1.2 plus D4 Task 4.2 — classification vs regression and explainability requirements.",maarek:"Supervised algorithms include classification/regression; Responsible AI emphasizes explainability and transparency.",confuse:"Classification vs regression, and accuracy vs interpretability. Neural networks can classify but are harder to explain; linear regression predicts continuous values."},
+4:{official:"D3 Task 3.2 — context, instruction, negative prompts, zero/single/few-shot, prompt templates, specificity and concision.",maarek:"Prompt = instructions + context + input data + output indicator. Temperature controls creativity; Top K/Top P control candidate diversity; Length sets maximum answer length.",confuse:"Prompt vs Temperature vs Top K. Output language, tone, format, and brevity are prompt requirements. Higher temperature or Top K usually makes output more diverse, not more controlled."},
+5:{official:"D1 Task 1.1 — inferencing types include batch, real-time, asynchronous, and serverless.",maarek:"SageMaker deployment/inference includes real-time, serverless, batch, and async. Async is the large-payload/long-processing near-real-time pattern.",confuse:"Async vs batch. Async is for individual large/slow requests that still need results relatively soon; batch transform is offline bulk processing."},
+6:{official:"D3 Task 3.3 — transfer learning, instruction tuning, domain adaptation, continuous pre-training, data preparation.",maarek:"Transfer/fine-tuning concepts reuse an existing pretrained model rather than starting from scratch; fine-tuning is for a specific field/task.",confuse:"Transfer learning vs fine-tuning vs pre-training. Transfer learning is the broad reuse concept; fine-tuning is one way to adapt pretrained knowledge."},
+7:{official:"D1 Task 1.3 — AI/ML lifecycle, data preparation, model evaluation, and human feedback concepts.",maarek:"SageMaker Ground Truth uses humans for data labeling/model grading; Ground Truth-related workflows are the human-labeling choice.",confuse:"Ground Truth vs Rekognition. Ground Truth is for human labeling/validation; Rekognition analyzes images and video."},
+8:{official:"D5 Task 5.1 — IAM roles/policies, encryption, secure data access, data leakage prevention.",maarek:"Bedrock accessing encrypted S3 data: IAM role needs S3 access and, for SSE-KMS, permission to decrypt with the KMS key.",confuse:"IAM/S3 permissions vs KMS decrypt. Also watch the wording: SSE-S3 does not use a customer KMS key, while SSE-KMS does. The original practice question appears to be aiming at the SSE-KMS pattern."},
+9:{official:"D2 Task 2.2 — select GenAI models based on performance, constraints, cost, latency, and model complexity.",maarek:"Inferencing at the edge: SLM on the device gives very low latency, low compute footprint, and offline capability; remote LLMs have higher latency and require connectivity.",confuse:"Model size vs location. 'Lowest latency at the edge' strongly favors small + local, not merely a smaller model hosted remotely."},
+10:{official:"D1 Task 1.3 — model performance metrics include accuracy, precision, recall, and F1; distinguish them from business metrics.",maarek:"Regression metrics include MAE/MAPE/RMSE/R². Classification uses classification metrics; accuracy answers 'what proportion was correct?'.",confuse:"Accuracy vs precision/recall/F1 vs RMSE/R². If the stem literally asks how many classifications were correct, accuracy is the direct answer."},
+11:{official:"D1 Task 1.3 — AWS services/features for stages of the ML pipeline and MLOps.",maarek:"Feature Store stores feature metadata centrally; Data Wrangler prepares data; Clarify explains/bias-checks; Model Cards document models.",confuse:"Feature Store vs Data Wrangler vs Clarify vs Model Cards — memorize the one-line job of each service."},
+12:{official:"D2 Task 2.3 — AWS infrastructure and technologies for GenAI applications.",maarek:"Amazon Q Developer is an AI code companion with real-time code suggestions, security scans, and software-development assistance.",confuse:"Q Developer vs Lambda vs Transcribe. Q Developer helps write/build software; Lambda runs serverless code; Transcribe converts speech to text."},
+13:{official:"D5 Task 5.1 — AWS PrivateLink is explicitly in scope as a security feature for AI systems.",maarek:"VPC endpoints, usually powered by PrivateLink, access AWS services privately without traversing the public internet; example: a VPC app accesses Bedrock privately.",confuse:"PrivateLink vs NAT gateway vs internet gateway. PrivateLink keeps service traffic private; NAT/IGW are about internet connectivity."},
+14:{official:"D1 Task 1.2 — determine when AI/ML is not appropriate, including when a specific deterministic outcome is needed instead of a prediction.",maarek:"No direct Maarek slide match was identified for this exact deterministic-rule example.",confuse:"Known formula/rule vs prediction. If arithmetic or rules give an exact answer, ordinary code is usually lower overhead than ML."},
+15:{official:"D1 Task 1.3 — evaluate model performance and distinguish technical metrics from business metrics.",maarek:"Prompt latency is how fast the model responds; model size/type and input/output token counts affect latency.",confuse:"Inference response time vs training time vs business KPI. Runtime efficiency is about how quickly the deployed model responds."},
+16:{official:"D1 Task 1.2 — managed AI services include Amazon Transcribe, Translate, Comprehend, Lex, Polly.",maarek:"Amazon Transcribe automatically converts speech to text and explicitly lists transcribing customer-service calls as a use case.",confuse:"Transcribe vs Comprehend vs Lex. Audio→text = Transcribe; text understanding = Comprehend; conversational bot interface = Lex."},
+17:{official:"D1 Task 1.1 — supervised, unsupervised, and reinforcement learning; labeled vs unlabeled data.",maarek:"Unsupervised learning discovers patterns/groups in unlabeled data; clustering use cases include customer segmentation and targeted marketing.",confuse:"Unlabeled + grouping = unsupervised clustering. RL uses rewards; RLHF is for aligning model behavior with human preferences."},
+18:{official:"D2 Task 2.1 includes embeddings/vectors/multimodal models; D3 Task 3.1 covers FM selection and application design.",maarek:"Nova 2 Multimodal Embeddings is described for agentic RAG and semantic search; multimodal models can accept multiple input modalities.",confuse:"Embedding model vs generation model. Search/retrieval needs vector representations; generation models primarily create content. Text-only embeddings cannot directly encode images."},
+19:{official:"D3 Task 3.3 — fine-tuning, instruction tuning, domain adaptation, data curation/labeling/representativeness.",maarek:"Supervised fine-tuning uses labeled input-output pairs such as prompt/completion. Provisioned Throughput reserves capacity and is not the training step.",confuse:"Fine-tuning vs Provisioned Throughput. One changes model behavior with training examples; the other reserves inference capacity."},
+20:{official:"D1 Task 1.2 — choose AI/ML techniques for use cases such as fraud detection and other pattern-detection tasks.",maarek:"Unsupervised learning includes anomaly detection; the fraud-detection example flags transactions that deviate significantly from typical behavior.",confuse:"Anomaly detection vs forecasting vs NER. Suspicious/unusual behavior = anomaly/outlier detection; forecasting predicts future values; NER extracts named entities from text."}
+};
+
+
+const optionWhy = {
+1:["Training code documents implementation, not how input features influence predictions.","A partial dependence plot shows the average effect of a selected feature on model predictions, making it directly useful for explaining model behavior.","Training samples describe the data but do not explain the trained model's decision behavior.","Convergence tables show training optimization/progress, not why the model produces particular predictions."],
+2:["NER extracts entities such as people, organizations, or locations; it does not primarily condense a document into key points.","A recommendation engine ranks/suggests items; it does not extract the main points of legal documents.","Summarization is designed to condense long text into the important information, matching 'read legal documents and extract key points.'","Translation changes language while preserving content; it does not identify and condense the key points."],
+3:["Decision trees perform classification and expose readable decision rules/branches, fitting both the 20-category task and the explainability requirement.","Linear regression predicts continuous numeric values, not one of 20 categories.","Logistic regression can perform classification, but a decision tree is the clearer choice when the question emphasizes documenting the model's inner decision mechanism.","Neural networks can classify well but are comparatively black-box and harder to document/explain."],
+4:["Correct: the prompt can explicitly require a short response and specify the output language. This directly controls the requested behavior without changing the model.","Model size affects capability, cost, and latency, but changing size is unnecessary when the requirement is response format/language.","Increasing temperature increases randomness/creativity, which works against tightly controlled output.","Increasing Top K expands the candidate-token set and tends to increase diversity; it does not enforce language or brevity."],
+5:["Real-time inference targets low-latency requests, but the very large payload and long processing time point away from this option.","Serverless inference is convenient for intermittent traffic but is not the pattern for 1 GB payloads and hour-long processing.","Correct: asynchronous inference is intended for large payloads and long-running requests while returning results when processing completes.","Batch transform is for offline/bulk inference rather than an individual near-real-time request workflow."],
+6:["Epoch count changes how long training runs; it does not define the strategy of reusing knowledge from a pretrained model.","Correct: transfer learning reuses learned representations/knowledge from a pretrained model for a related task instead of starting from scratch.","Reducing epochs is merely a training-setting change and does not transfer pretrained knowledge.","Unsupervised learning learns patterns from unlabeled data; it is not the requested pretrained-model adaptation strategy."],
+7:["Correct: Ground Truth Plus adds human labeling/validation, which directly addresses the requirement for highly accurate annotations and fewer incorrect labels.","A Bedrock knowledge base supports retrieval/RAG; it is not an image-annotation validation service.","Rekognition analyzes images, but the requirement emphasizes annotation accuracy and human validation rather than simply recognizing image content.","QuickSight Q is for analytics/business intelligence interactions, not image annotation."],
+8:["Correct for the intended SSE-KMS pattern: the assumed role needs the required S3 access and KMS decrypt permission. Note: SSE-S3 itself does not use a customer KMS key.","Making the bucket public is insecure and unnecessary; Bedrock should use authorized private access.","Prompt engineering cannot grant AWS resource permissions. Access control is handled by IAM/resource/KMS policies.","Sensitive data can be securely processed with proper controls; removing sensitive information does not solve a permissions failure."],
+9:["Correct: a small model running locally removes network round-trip latency and needs less edge compute, giving the strongest low-latency fit.","A local LLM avoids network latency too, but its larger compute footprint generally makes it slower/heavier than an optimized SLM on constrained edge hardware.","A centralized API adds network latency; asynchronous invocation also does not target the lowest interactive latency.","This combines a large remote model with network/asynchronous delay, making it the least suitable choice for minimum edge latency."],
+10:["R² measures how well a regression model explains variation in continuous targets; this is a classification problem.","Correct: accuracy is the fraction of predictions classified correctly, exactly matching the wording of the question.","RMSE measures the magnitude of numeric regression errors, not correct/incorrect class labels.","Learning rate controls training updates; it is a hyperparameter, not an evaluation metric."],
+11:["Correct: Feature Store centrally stores and makes reusable ML features discoverable so multiple teams can share them.","Data Wrangler prepares, transforms, explores, and engineers data/features; it is not the central reusable feature repository.","Clarify is for bias detection and model explainability.","Model Cards centrally document model details, intended use, metrics, risks, and related information—not reusable feature variables."],
+12:["Correct: Q Developer is an AI coding companion and can generate code/software assistance; the other choices describe unrelated AWS capabilities.","Running code without managing servers describes AWS Lambda, not Amazon Q Developer.","Voice-command coding is not the defining capability being tested; Q Developer's core exam cue is AI-assisted software development/code generation.","Speech-to-text conversion is Amazon Transcribe."],
+13:["Correct: AWS PrivateLink/VPC endpoints provide private connectivity to supported AWS services without sending traffic over the public internet.","Macie discovers/classifies sensitive data, especially in S3; it does not provide private network connectivity to Bedrock.","CloudFront is a content delivery network and does not solve private VPC-to-service connectivity.","An internet gateway enables internet connectivity—the opposite of the stated no-internet requirement."],
+14:["A regression model is unnecessary because the probability is deterministically calculable from known counts.","Reinforcement learning learns actions from rewards; this simple arithmetic problem requires no learned policy.","Correct: simple rules/code compute 4/(6+4+3) exactly with minimal operational overhead.","Unsupervised density estimation is unnecessary when the exact probability follows directly from the given counts."],
+15:["CSAT measures user/business satisfaction, not model runtime efficiency.","Training time per epoch measures training efficiency, not deployed inference runtime.","Correct: average response time measures how quickly the operating model returns results—its inference latency.","Number of training instances describes dataset size, not runtime performance."],
+16:["Lex builds conversational interfaces; it does not primarily transcribe existing call audio into text.","Correct: Transcribe converts speech/audio to text, creating text that can then be analyzed for insights.","Model Monitor watches deployed model quality/drift; it does not extract information from raw call recordings.","Comprehend analyzes text, but raw audio first needs speech-to-text conversion."],
+17:["Supervised learning requires labeled target examples; the customer data is explicitly unlabeled.","Correct: unsupervised learning finds structure in unlabeled data; clustering naturally fits customer segmentation into tiers/groups.","Reinforcement learning learns behavior through rewards and environment interaction, not static customer clustering.","RLHF aligns model outputs with human preference feedback; it is not a customer segmentation method."],
+18:["Correct: multimodal embeddings encode text and images into vectors suitable for semantic/cross-modal retrieval.","Text-only embeddings cannot directly represent the image queries/content required here.","A multimodal generation model creates/understands content but is not the most direct search-retrieval representation choice.","An image generation model creates images; it is not designed to encode text and images for semantic search."],
+19:["Correct: supervised fine-tuning needs labeled examples pairing an input/prompt with the desired output/completion.","A text file containing CSV-looking lines is not itself the required supervised input-output training structure.","Provisioned Throughput reserves inference capacity; it does not train or fine-tune a model.","Generic journals/textbooks may support domain pretraining, but they do not provide the company-specific labeled prompt/completion examples requested for supervised fine-tuning."],
+20:["Speech recognition handles audio, not suspicious IP/network behavior.","NER extracts named entities from text; it does not detect abnormal network patterns.","Correct: anomaly detection identifies observations/behavior that deviate from normal patterns, fitting suspicious IP activity.","Forecasting predicts future values/trends; it does not primarily flag unusual current behavior."]
+};
+const compareCharts = {
+1:[["Item","Best exam cue"],["PDP","Shows feature effect on predictions"],["Clarify","AWS explainability + bias tools"],["Model Cards","Model documentation"]],
+3:[["Concept","Use"],["Classification","Predict a category/class"],["Regression","Predict a numeric value"],["Decision tree","Transparent rules/branches"],["Neural network","Powerful, less transparent"]],
+4:[["Control","Exam distinction"],["Prompt","Instructions: language, format, tone, brevity"],["Temperature","Randomness / creativity"],["Top P","Probability-mass candidate range"],["Top K","Number of candidate tokens"],["Length","Maximum output length"]],
+5:[["Inference","Exam cue"],["Real-time","Immediate low-latency request"],["Serverless","Intermittent traffic, no server management"],["Async","Large payload / long processing"],["Batch","Offline bulk inference"]],
+8:[["Encryption/access","Exam cue"],["SSE-S3","S3-managed keys"],["SSE-KMS","KMS key; permissions can require kms:Decrypt"],["IAM","Who can access which AWS resource"]],
+10:[["Metric","Exam cue"],["Accuracy","Overall fraction correct"],["Precision","Of predicted positives, how many correct?"],["Recall","Of actual positives, how many found?"],["F1","Balance precision + recall"],["RMSE / R²","Regression metrics"]],
+11:[["Service","One-line distinction"],["Data Wrangler","Prepare / transform data"],["Feature Store","Store + share reusable features"],["Clarify","Bias + explainability"],["Model Cards","Documentation"],["Model Monitor","Production monitoring"]],
+13:[["Networking","Exam cue"],["PrivateLink / VPC endpoint","Private AWS-service access"],["Internet gateway","Direct internet connectivity"],["NAT gateway","Private subnet outbound internet"]],
+16:[["Service","Exam cue"],["Transcribe","Speech → text"],["Comprehend","Analyze text"],["Lex","Conversational bot interface"],["Polly","Text → speech"]],
+17:[["Learning","Exam cue"],["Supervised","Labeled examples"],["Unsupervised","Unlabeled patterns / clustering"],["Reinforcement","Rewards + actions"],["RLHF","Human preference feedback for model alignment"]],
+18:[["Model","Exam cue"],["Text embeddings","Text → vectors"],["Multimodal embeddings","Text/images/etc. → vectors for search"],["Generation model","Creates content"]],
+19:[["Approach","Exam cue"],["Fine-tuning","Train model on task/domain examples"],["RAG","Retrieve external knowledge at inference"],["Provisioned Throughput","Reserve inference capacity"],["Prompt engineering","Change instructions; no model training"]]
+};
+function chartHTML(n){const rows=compareCharts[n];if(!rows)return '';return `<div class="studyitem"><strong>↔ Confusion chart</strong><table class="compareTable">${rows.map((r,i)=>`<tr>${r.map(c=>i===0?`<th>${esc(c)}</th>`:`<td>${esc(c)}</td>`).join('')}</tr>`).join('')}</table></div>`}
+
+function shuffle(a){const x=[...a];for(let i=x.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[x[i],x[j]]=[x[j],x[i]]}return x}
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+
+document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{
+ document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+ document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
+ b.classList.add('active');document.getElementById(b.dataset.tab).classList.add('active');
+}));
+
+let vaultOrder=shuffle(qs);
+function getSaved(key, fallback=''){try{return localStorage.getItem(key)??fallback}catch(e){return fallback}}
+function setSaved(key,val){try{localStorage.setItem(key,val)}catch(e){}}
+
+function renderVault(){
+ const term=document.getElementById('searchBox').value.trim().toLowerCase();
+ const dom=document.getElementById('domainFilter').value;
+ const vault=document.getElementById('vaultList');vault.innerHTML='';
+ let shown=0;
+ vaultOrder.forEach(x=>{
+  const ex=studyExtras[x.n]||{official:'',maarek:'',confuse:''};
+  const blob=[x.t,x.d,x.task,x.q,...x.o,x.a,x.why,x.m,x.rel,ex.official,ex.maarek,ex.confuse].join(' ').toLowerCase();
+  if((dom&&x.d!==dom)||(term&&!blob.includes(term)))return; shown++;
+  const art=document.createElement('article');art.className='card qcard';
+  const star=getSaved('aif-c01-star-'+x.n)==='1';
+  const confidence=getSaved('aif-c01-confidence-'+x.n,'');
+  art.innerHTML=`<div class="qhead"><div class="qtitle">Q${x.n} · ${esc(x.t)} <span class="badge">${x.d} · ${esc(x.task)}</span></div>
+  <div class="meta">Permanent ID Q${x.n} · randomized display order</div></div>
+  <div class="qbody"><p>${esc(x.q)}</p><div class="opts interactiveOpts">${x.o.map((o,i)=>`<label class="answerOption"><input type="radio" name="vault-q${x.n}" value="${i}"><span>${String.fromCharCode(65+i)}. ${esc(o)}</span></label>`).join('')}</div>
+  <div class="controls"><button class="checkAnswer primary">Check answer</button><button class="showDetail">Study explanation</button><button class="showNotes">My Notes</button>
+  <button class="star ${star?'on':''}">${star?'★ Starred':'☆ Star'}</button>
+  <button class="confBtn" data-level="${confidence}">${confidence==='1'?'Need review':confidence==='2'?'Okay':confidence==='3'?'Confident':'Set confidence'}</button></div>
+  <div class="feedback"></div><div class="detail"><div><strong>Correct:</strong> ${esc(x.a)}</div><div><strong>Why:</strong> ${esc(x.why)}</div>
+  <div><strong>Exam-ready option breakdown:</strong></div><div class="optionBreakdown">${x.o.map((o,i)=>`<div class="explainRow ${o===x.a?'good':'bad'}"><strong>${String.fromCharCode(65+i)}. ${esc(o)}</strong><br>${esc((optionWhy[x.n]||[])[i]||'')}</div>`).join('')}</div>
+  <div class="studybox"><div class="studyitem memory"><strong>🧠 Memory hook</strong>${esc(x.m)}</div>
+  <div class="studyitem confuse"><strong>⚠️ Common confusions</strong>${esc(ex.confuse)}</div>${chartHTML(x.n)}
+  <div class="studyitem"><strong>📘 Official exam-guide topics</strong>${esc(ex.official)}</div>
+  <div class="studyitem"><strong>📗 Maarek PDF topics</strong>${esc(ex.maarek)}</div></div>
+  <div style="margin-top:10px"><strong>Related concepts:</strong> ${esc(x.rel)}</div>
+  ${x.note?`<div class="noteBanner"><strong>Question wording note:</strong> ${esc(x.note)}</div>`:''}</div>
+  <div class="notesBox"><label><strong>My Notes for Q${x.n}</strong></label><textarea rows="4" placeholder="Write your own memory trick, mistake, clarification, or exam note…"></textarea><div class="small noteStatus">Saved locally.</div></div></div>`;
+  art.querySelectorAll('.answerOption input').forEach(inp=>inp.onchange=()=>{art.querySelectorAll('.answerOption').forEach(l=>l.classList.remove('selected'));inp.closest('.answerOption').classList.add('selected')});
+  art.querySelector('.checkAnswer').onclick=()=>{const picked=art.querySelector(`input[name="vault-q${x.n}"]:checked`);const fb=art.querySelector('.feedback');fb.classList.add('show');art.querySelectorAll('.answerOption').forEach((lab,i)=>{lab.classList.remove('correct','wrong');if(x.o[i]===x.a)lab.classList.add('correct');if(picked&&Number(picked.value)===i&&x.o[i]!==x.a)lab.classList.add('wrong')});if(!picked){fb.innerHTML='<div class="noteBanner">Choose an answer first.</div>';return;}const i=Number(picked.value),ok=x.o[i]===x.a;fb.innerHTML=`<div class="${ok?'studyitem memory':'studyitem confuse'}"><strong>${ok?'✓ Correct':'✗ Not quite'}</strong><br>${esc((optionWhy[x.n]||[])[i]||'')} ${ok?'':'<br><br><strong>Correct answer:</strong> '+esc(x.a)}</div>`};
+  art.querySelector('.showDetail').onclick=()=>art.querySelector('.detail').classList.toggle('show');
+  art.querySelector('.showNotes').onclick=()=>art.querySelector('.notesBox').classList.toggle('show');
+  const starBtn=art.querySelector('.star');starBtn.onclick=()=>{const on=!starBtn.classList.contains('on');starBtn.classList.toggle('on',on);starBtn.textContent=on?'★ Starred':'☆ Star';setSaved('aif-c01-star-'+x.n,on?'1':'0')};
+  const conf=art.querySelector('.confBtn');conf.onclick=()=>{let level=parseInt(conf.dataset.level||'0');level=level%3+1;conf.dataset.level=String(level);conf.textContent=level===1?'Need review':level===2?'Okay':'Confident';setSaved('aif-c01-confidence-'+x.n,String(level))};
+  const ta=art.querySelector('textarea');ta.value=getSaved('aif-c01-note-'+x.n,'');ta.oninput=()=>setSaved('aif-c01-note-'+x.n,ta.value);
+  vault.appendChild(art);
+ });
+ if(!shown)vault.innerHTML='<div class="small" style="padding:18px">No matching questions.</div>';
+}
+document.getElementById('searchBox').addEventListener('input',renderVault);
+document.getElementById('domainFilter').addEventListener('change',renderVault);
+document.getElementById('reshuffle').onclick=()=>{vaultOrder=shuffle(qs);renderVault()};
+renderVault();
+
+let currentReview=null;
+document.getElementById('pickReview').addEventListener('click',()=>{
+ const weighted=[];qs.forEach((q,i)=>{let w=Math.max(1,qs.length-i);if(getSaved('aif-c01-confidence-'+q.n)==='1')w+=12;if(getSaved('aif-c01-star-'+q.n)==='1')w+=3;for(let k=0;k<w;k++)weighted.push(q)});
+ currentReview=weighted[Math.floor(Math.random()*weighted.length)];
+ const opts=shuffle(currentReview.o),area=document.getElementById('reviewArea');
+ area.innerHTML=`<div class="card" style="margin-top:12px"><strong>Q${currentReview.n} · ${esc(currentReview.t)}</strong><p>${esc(currentReview.q)}</p>
+ ${opts.map((o,i)=>`<label class="choice"><input type="radio" name="reviewChoice" value="${esc(o)}"> ${String.fromCharCode(65+i)}. ${esc(o)}</label>`).join('')}
+ <button id="showReviewAnswer">Reveal answer</button><div id="reviewAns" class="answerbox"></div></div>`;
+ document.getElementById('showReviewAnswer').onclick=()=>{const c=document.querySelector('input[name="reviewChoice"]:checked');const ans=document.getElementById('reviewAns');ans.classList.add('show');const ex=studyExtras[currentReview.n];ans.innerHTML=`<strong>Your answer:</strong> ${c?esc(c.value):'No answer'}<br><strong>Correct:</strong> ${esc(currentReview.a)}<br><strong>Memory:</strong> ${esc(currentReview.m)}<br><strong>Confusion check:</strong> ${esc(ex.confuse)}`};
+});
+
+let exam=[],idx=0,answers=[],started=0,timerId=null;
+function fmt(sec){return String(Math.floor(sec/60)).padStart(2,'0')+':'+String(sec%60).padStart(2,'0')}
+function startMock(){exam=shuffle(qs).map(q=>({...q,shown:shuffle(q.o)}));idx=0;answers=[];started=Date.now();clearInterval(timerId);timerId=setInterval(renderMock,1000);renderMock()}
+function renderMock(){
+ const area=document.getElementById('mockArea'),q=exam[idx],pct=Math.round((idx/exam.length)*100);
+ area.innerHTML=`<div class="small" style="margin-top:12px">Question ${idx+1} of ${exam.length} · Time ${fmt(Math.floor((Date.now()-started)/1000))}</div><div class="progress"><div style="width:${pct}%"></div></div>
+ <div class="card" style="margin-top:10px"><strong>Q${q.n} · ${esc(q.t)}</strong> <span class="badge">${q.d}</span><p>${esc(q.q)}</p>
+ ${q.shown.map((o,i)=>`<label class="choice"><input type="radio" name="mockChoice" value="${esc(o)}"> ${String.fromCharCode(65+i)}. ${esc(o)}</label>`).join('')}
+ <button id="mockNext" class="primary">${idx===exam.length-1?'Finish Exam':'Next'}</button></div>`;
+ document.getElementById('mockNext').onclick=()=>{const c=document.querySelector('input[name="mockChoice"]:checked');answers.push({q,sel:c?c.value:null,ok:c?c.value===q.a:false});if(idx===exam.length-1)finishMock();else{idx++;renderMock()}};
+}
+function finishMock(){
+ clearInterval(timerId);const good=answers.filter(x=>x.ok).length,score=Math.round(good/answers.length*100),secs=Math.floor((Date.now()-started)/1000);
+ const byDom={};answers.forEach(x=>{byDom[x.q.d]??={ok:0,n:0};byDom[x.q.d].n++;if(x.ok)byDom[x.q.d].ok++});
+ setSaved('aif-c01-last-mock',JSON.stringify({score,good,total:answers.length,secs,date:new Date().toISOString(),byDom}));updateReadiness();
+ document.getElementById('mockArea').innerHTML=`<div class="card" style="margin-top:12px"><h2>Mock Result</h2><div class="metric"><div class="value">${good}/${answers.length} · ${score}%</div></div><p class="small">Time: ${fmt(secs)} · 1 point per question for study tracking.</p>
+ ${Object.entries(byDom).map(([d,v])=>`<div class="domainrow"><strong>${d}</strong> — ${v.ok}/${v.n} (${Math.round(v.ok/v.n*100)}%)</div>`).join('')}
+ ${answers.map(x=>`<div class="qcard"><strong>Q${x.q.n}</strong> — ${x.ok?'✓':'✗'}<br>Your answer: ${esc(x.sel||'No answer')}<br>Correct: ${esc(x.q.a)}<br><span class="small">${esc(x.q.m)}</span></div>`).join('')}
+ <button id="again" class="primary">Take another mock</button></div>`;document.getElementById('again').onclick=startMock;
+}
+function updateReadiness(){const raw=getSaved('aif-c01-last-mock','');const heat=document.getElementById('domainHeat');if(!raw){if(heat)heat.innerHTML=['D1','D2','D3','D4','D5'].map(d=>`<div class="heatCell heat-unknown"><div class="big">${d}</div><div class="tiny">—</div></div>`).join('');return;}try{const r=JSON.parse(raw);document.getElementById('readiness').textContent=`Last mock: ${r.score}%`;if(heat)heat.innerHTML=['D1','D2','D3','D4','D5'].map(d=>{const v=r.byDom&&r.byDom[d];if(!v||!v.n)return `<div class="heatCell heat-unknown"><div class="big">${d}</div><div class="tiny">—</div></div>`;const p=Math.round(v.ok/v.n*100),cl=p>=80?'heat-strong':p>=60?'heat-mid':'heat-weak';return `<div class="heatCell ${cl}"><div class="big">${d}</div><div class="tiny">${p}%</div></div>`}).join('');}catch(e){}}
+updateReadiness();document.getElementById('startMock').onclick=startMock;
+</script></main></body></html>
